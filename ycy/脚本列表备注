@@ -1,0 +1,183 @@
+# 创建用户邀请码  0点
+0 0 * * * cd /www/allianceson/ && php think create_user_code >> /var/log/crontab_log/create_user_code_$(date "+\%Y\%m\%d").log
+
+# 用户推广奖励日 0点
+0 0 * * * cd /www/allianceson/ && php think buy_recommend_reward process >> /var/log/crontab_log/buy_recommend_reward_process_$(date "+\%Y\%m\%d").log
+
+# 用户培养奖励日
+0 0 * * * cd /www/allianceson/ && php think buy_culture_reward process >> /var/log/crontab_log/buy_culture_reward_process_$(date "+\%Y\%m\%d").log
+
+# 确认订单收货
+0 0 * * * cd /www/allianceson/ && php think confirm_order add >> /var/log/crontab_log/confirm_order_add_$(date "+\%Y\%m\%d").log
+0 2 * * * cd /www/allianceson/ && php think confirm_order process >> /var/log/crontab_log/confirm_order_process_$(date "+\%Y\%m\%d").log
+
+# 购买奖励
+0 0 * * * cd /www/allianceson/ && php think buy_reward process >> /var/log/crontab_log/buy_reward_process_$(date "+\%Y\%m\%d").log
+
+#交易量返兑换券 每天0点跑
+0 0 * * * cd /www/allianceson/ && php think vouchers >> /var/log/crontab_log/vouchers_$(date "+\%Y\%m\%d").log
+
+# 清销量加库存
+*/15 * * * * cd /www/allianceson/ && php think back_stock_sales >> /var/log/crontab_log/back_stock_sales_$(date "+\%Y\%m\%d").log
+
+# 每月1日清除销量
+0 0 1 * * cd /www/allianceson/ && php think clear_sales >> /var/log/crontab_log/clear_sales_$(date "+\%Y\%m\%d").log
+
+# 云聚合
+0 0 16 * * cd /www/alliancefather/ && php think yun  >> /var/log/crontab_log/yuncard_$(date "+\%Y\%m\%d").log
+
+# 每月3日鼓励金发放
+0 1 3 * * cd /www/allianceson/ && php think encourage_reward add >> /var/log/crontab_log/encourage_reward_add_$(date "+\%Y\%m\%d").log
+30 1 3 * * cd /www/allianceson/ && php think encourage_reward process >> /var/log/crontab_log/encourage_reward_process_$(date "+\%Y\%m\%d").log
+
+# 每月3日激活二次返奖励
+30 0 3 * * cd /www/allianceson/ && php think active_two_return add >> /var/log/crontab_log/active_two_return_add_$(date "+\%Y\%m\%d").log
+30 2 3 * * cd /www/allianceson/ && php think active_two_return process >> /var/log/crontab_log/active_two_return_process_$(date "+\%Y\%m\%d").log
+
+# 交易量达标奖励 每日凌晨 3：30添加队列 ，4:30发放奖励
+20 2 */1 * * cd /www/allianceson/ && php think active_two_return add_date >> /var/log/crontab_log/active_two_return_add_date_$(date "+\%Y\%m\%d").log
+50 2 */1 * * cd /www/allianceson/ && php think active_two_return process_date >> /var/log/crontab_log/active_two_return_process_date_$(date "+\%Y\%m\%d").log
+
+
+# 每月3日激活量奖励发放
+0 0 3 * * cd /www/allianceson/ && php think active_reward add >> /var/log/crontab_log/active_reward_add_$(date "+\%Y\%m\%d").log
+30 0 3 * * cd /www/allianceson/ && php think active_reward process >> /var/log/crontab_log/active_reward_process_$(date "+\%Y\%m\%d").log
+
+#每日发送3次平台交易情况
+0 7 * * * cd /www/allianceson/ && php think phpmailer >> /var/log/crontab_log/send_mail_$(date "+\%Y\%m\%d").log
+0 12 * * * cd /www/allianceson/ && php think phpmailer >> /var/log/crontab_log/send_mail_$(date "+\%Y\%m\%d").log
+0 20 * * * cd /www/allianceson/ && php think phpmailer >> /var/log/crontab_log/send_mail_$(date "+\%Y\%m\%d").log
+
+#极光推送
+30 08 * * * cd /www/allianceson/ && php think jpushincome  >> /var/log/crontab_log/income_$(date "+\%Y\%m\%d").log
+00 10 * * * cd /www/allianceson/ && php think jpushrecord  >> /var/log/crontab_log/record_$(date "+\%Y\%m\%d").log
+
+#导出文件
+*/5 * * * * cd /www/allianceson/ && php think download >> /var/log/crontab_log/export_$(date "+\%Y\%m\%d").log
+
+#批量代付
+*/3 * * * * cd /www/allianceson/ && php think user_widthdraw_apply exec >> /var/log/crontab_log/user_widthdraw_apply_$(date "+\%Y\%m\%d").log
+
+#台均监控统计 终端数据加入redis
+30 02 * * * cd /www/allianceson/ && php think terminal_avg_day add --type terminal >> /var/log/crontab_log/terminal_avg_day_add_terminal_$(date "+\%Y\%m\%d").log
+
+#台均监控统计 处理终端数据
+00 03 * * * cd /www/allianceson/ && php think terminal_avg_day process --type terminal >> /var/log/crontab_log/terminal_avg_day_process_terminal_$(date "+\%Y\%m\%d").log
+
+#台均监控统计 交易数据加入redis
+00 03 * * * cd /www/allianceson/ && php think terminal_avg_day add --type transaction >> /var/log/crontab_log/terminal_avg_day_add_transaction_$(date "+\%Y\%m\%d").log
+
+#台均监控统计 处理交易数据
+30 03 * * * cd /www/allianceson/ && php think terminal_avg_day process --type transaction >> /var/log/crontab_log/terminal_avg_day_process_transaction_$(date "+\%Y\%m\%d").log
+
+#更新激活终端 00:15:00
+15 00 * * * cd /www/allianceson/ && php think transaction_reward active_update >> /var/log/crontab_log/transaction_reward_active_$(date "+\%Y\%m\%d").log
+
+#结算交易量奖励 每日06:30
+30 06 * * * cd /www/allianceson/ && php think transaction_reward deal_reward >> /var/log/crontab_log/transaction_reward_deal_$(date "+\%Y\%m\%d").log
+
+#交易量月首月奖励 每天凌晨跑批
+0 0 * * * cd /www/allianceson/ && php think terminal_month_reward add --type 1  >> /var/log/crontab_log/terminal_month_reward_add_1_$(date "+\%Y\%m\%d").log
+30 0 * * * cd /www/allianceson/ && php think terminal_month_reward process --type 1  >> /var/log/crontab_log/terminal_month_reward_process_1_$(date "+\%Y\%m\%d").log
+
+#交易量月二月奖励 每月3号跑批
+0 0 3 * * cd /www/allianceson/ && php think terminal_month_reward add --type 2 >> /var/log/crontab_log/terminal_month_reward_add_2_$(date "+\%Y\%m\%d").log
+30 0 3 * * cd /www/allianceson/ && php think terminal_month_reward exec --type 2 >> /var/log/crontab_log/terminal_month_reward_exec_2_$(date "+\%Y\%m\%d").log
+
+#交易量月三月奖励 每月3号跑批
+0 0 3 * * cd /www/allianceson/ && php think terminal_month_reward add --type 3 >> /var/log/crontab_log/terminal_month_reward_add_3_$(date "+\%Y\%m\%d").log
+30 0 3 * * cd /www/allianceson/ && php think terminal_month_reward exec --type 3 >> /var/log/crontab_log/terminal_month_reward_exec_3_$(date "+\%Y\%m\%d").log
+
+#交易量阶梯奖励
+*/60 * * * * cd /www/allianceson/ && php think transaction_ladder_award2 first --sec_ago=432000 >> /var/log/crontab_log/transaction_ladder_award2-first_$(date "+\%Y\%m\%d").log
+0 3 * * * cd /www/allianceson/ && php think transaction_ladder_award2 fill >> /var/log/crontab_log/transaction_ladder_award2-fill_$(date "+\%Y\%m\%d").log
+0 4 * * * cd /www/allianceson/ && php think transaction_ladder_award2 inspect >> /var/log/crontab_log/transaction_ladder_award2-inspect_$(date "+\%Y\%m\%d").log
+0 5 * * * cd /www/allianceson/ && php think transaction_ladder_award2 grant >> /var/log/crontab_log/transaction_ladder_award2-grant_$(date "+\%Y\%m\%d").log
+0 6 * * * cd /www/allianceson/ && php think transaction_ladder_award2 later >> /var/log/crontab_log/transaction_ladder_award2-later_$(date "+\%Y\%m\%d").log
+
+#交易量推算激活脚本 15分钟执行一次 BY 王金龙 2019-10-30
+*/15 * * * * cd /www/allianceson/ && php think transaction_to_active process --process_num 1 >> /var/log/crontab_log/trans_act_process_$(date "+\%Y\%m\%d").log
+
+#用户等级归档（激活量秒结）
+0 0 1 * * cd /www/allianceson/ && php think level_archive_v2 activate --settle=2 >> /var/log/crontab_log/level_archive_v2_activate2_$(date "+\%Y\%m\%d").log
+#用户等级归档（激活量日结）
+0 0 2 * * cd /www/allianceson/ && php think level_archive_v2 activate --settle=1 >> /var/log/crontab_log/level_archive_v2_activate1_$(date "+\%Y\%m\%d").log
+#用户等级归档（交易量）
+0 3 3 * * cd /www/allianceson/ && php think level_archive_v2 transaction >> /var/log/crontab_log/level_archive_v2_transaction_$(date "+\%Y\%m\%d").log
+
+#用户（批量）加钱
+*/5 * * * * cd /www/allianceson/ && php think batch_money_change process --process_num 2 >> /var/log/crontab_log/batch_money_change_process_$(date "+\%Y\%m\%d").log
+*/5 * * * * cd /www/allianceson/ && php think money_change process --process_num 2 >> /var/log/crontab_log/money_change_process_$(date "+\%Y\%m\%d").log
+
+#每月3号等级规则更新
+0 0 3 * * cd /www/allianceson/ && php think UpdateGrade >> /var/log/crontab_log/update_grade_$(date "+\%Y\%m\%d").log
+
+#每月20号8点对user_balance_log进行检测分区
+0 8 20 * * cd /www/allianceson/ && php think balance_log_partition check_create >> /var/log/crontab_log/balance_log_partition_check_create_$(date "+\%Y\%m\%d").log
+
+#每月3号0点20执行用户降级添加redis数据
+20 0 3 * * cd /www/allianceson/ && php think user_downgrade add >> /var/log/crontab_log/user_downgrade_add_$(date "+\%Y\%m\%d").log
+#每月3号0点30执行用户降级程序
+30 0 3 * * cd /www/allianceson/ && php think user_downgrade process >> /var/log/crontab_log/user_downgrade_process_$(date "+\%Y\%m\%d").log
+
+#用户设置等级恢复
+55 23 * * * cd /www/allianceson/ && php think RestoreUserLevel >> /var/log/crontab_log/restore_user_level_$(date "+\%Y\%m\%d").log
+
+#订单支付失败退还点券
+5 * * * * cd /www/allianceson/ && php think php think user_coupon_rollback >> /var/log/crontab_log/user_coupon_rollback_$(date "+\%Y\%m\%d").log
+
+#交易分润补充回Redis
+*/3 * * * * cd /www/allianceson/ && php think retry_transaction >> /var/log/crontab_log/retry_transaction_$(date "+\%Y\%m\%d").log
+
+#GoAccess-Tool
+#1 * * * * /usr/local/bin/goaccess -f /usr/local/nginx/logs/access.log -o /opt/share/nginx/html/index.html --real-time-html -p /usr/local/etc/goaccess.conf
+
+#活动-管理奖励
+#每天0点05分-检测活动是否开始/结束
+5 0 * * * cd /www/allianceson/ && php think active_manage_check_day check >> /var/log/crontab_log/active_manage_check_day_check_$(date "+\%Y\%m\%d").log
+#每天0点15分-核算昨天数据
+15 0 * * * cd /www/allianceson/ && php think active_manage_check_day exec >> /var/log/crontab_log/active_manage_check_day_exec_$(date "+\%Y\%m\%d").log
+#每月3号3点15分-核算上月数据
+15 3 3 * * cd /www/allianceson/ && php think active_manage_check exec >> /var/log/crontab_log/active_manage_check_exec_$(date "+\%Y\%m\%d").log
+#每天6点30分-检测需要发放的机构执行发放
+30 6 * * * cd /www/allianceson/ && php think active_manage_check_day reward_grant >> /var/log/crontab_log/active_manage_check_day_reward_grant_$(date "+\%Y\%m\%d").log
+
+#活动-激活活动
+#天检测活动开始结束
+5 0 * * * cd /www/allianceson/ && php think activity_activate check >> /var/log/crontab_log/activity_activate_check_$(date "+\%Y\%m\%d").log
+#天脚本核算（核算当前月）
+20 0 * * * cd /www/allianceson/ && php think activity_activate exec_day >> /var/log/crontab_log/activity_activate_exec_day_$(date "+\%Y\%m\%d").log
+#月脚本核算（核算上个月，核算最终结果）
+25 3 3 * * cd /www/allianceson/ && php think activity_activate exec_month >> /var/log/crontab_log/activity_activate_exec_month_$(date "+\%Y\%m\%d").log
+#金额发放脚本
+45 6 * * * cd /www/allianceson/ && php think activity_activate grant >> /var/log/crontab_log/activity_activate_grant_$(date "+\%Y\%m\%d").log
+
+#活动-激活交易活动[顺序执行]
+#天检测活动开始结束（每天0点5分）
+5 0 * * * cd /www/allianceson/ && php think active_transaction_check check_status >> /var/log/crontab_log/active_transaction_check_check_status_$(date "+\%Y\%m\%d").log
+#天脚本核算（核算周期开始到当天数据每天0点20）
+20 0 * * * cd /www/allianceson/ && php think active_transaction_check check_day >> /var/log/crontab_log/active_transaction_check_check_day_$(date "+\%Y\%m\%d").log
+#月脚本核算（核算上个月，核算最终结果，每月3号3点28）
+28 3 3 * * cd /www/allianceson/ && php think active_transaction_check check_month  >> /var/log/crontab_log/active_transaction_check_check_month _$(date "+\%Y\%m\%d").log
+#金额发放脚本-检测需要发放的机构（每天6点48）
+48 6 * * * cd /www/allianceson/ && php think active_transaction_check reward_grant >> /var/log/crontab_log/active_transaction_check_reward_grant_$(date "+\%Y\%m\%d").log
+
+# 排队奖励入队 每日 2020-12-11
+*/2 * * * * cd /www/allianceson/ && php think active_sort in >> /var/log/crontab_log/active_sort_in_$(date "+\%Y\%m\%d").log
+# 排队奖励发放 每日 2020-11-27
+*/2 * * * * cd /www/allianceson/ && php think active_sort out >> /var/log/crontab_log/active_sort_out_$(date "+\%Y\%m\%d").log
+# 用户等级到期提醒
+*/1 * * * * cd /www/allianceson/ && php think RestoreUserLevel UserLevelExpireNotice >> /var/log/crontab_log/user_level_expire_notice_$(date "+\%Y\%m\%d").log
+#自动发货
+*/1 * * * * cd /www/allianceson/ && php think deliver_order >> /var/log/crontab_log/deliver_order_$(date "+\%Y\%m\%d").log
+#收货后自动发放点券
+*/1 * * * * cd /www/allianceson/ && php think receiving_goods_and_issuing_coupons  >> /var/log/crontab_log/receiving_goods_and_issuing_coupons_$(date "+\%Y\%m\%d").log
+
+#服务费收取 - 固定服务费 配置生效后，每月10号3点收取服务费
+0 3 10 * * cd /www/allianceson/ && php think organization_service_pay fixed_cost >> /var/log/crontab_log/organization_service_pay_fixed_cost_$(date "+\%Y\%m\%d").log
+
+#服务费收取 - 配置生效脚本，开启或修改配置后，配置次月生效 每月最后一天 23:55:00 执行
+55 23 28 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_28$(date "+\%Y\%m\%d").log
+55 23 29 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_29$(date "+\%Y\%m\%d").log
+55 23 30 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_30$(date "+\%Y\%m\%d").log
+55 23 31 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_31$(date "+\%Y\%m\%d").log

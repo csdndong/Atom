@@ -1,0 +1,3 @@
+win10  端口转发
+netsh  interface portproxy add v4tov4 listenaddress=192.168.0.144 listenport=10019 connectaddress=172.17.159.122 connectport=3306
+netsh  interface portproxy add v4tov4 listenaddress=127.0.0.1 listenport=10019 connectaddress=172.17.159.122 connectport=3306

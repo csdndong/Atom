@@ -1,0 +1,6 @@
+
+	*  自动拉取测试环境的钩子
+- cd /www/allianceson
+    - git pull origin developer
+    - cp ./config_online/event.php ./config
+//功能点为 自动pull developer代码   && 自动copy  config_online 到 config
