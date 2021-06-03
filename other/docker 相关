@@ -17,3 +17,7 @@
    docker pull redis:latest //拉取最新镜像
 	 docker run -itd --name redis-test -p 6379:6379 redis --requirepass 123456 //创建容器并设置密码
 	 docker exec -it redis-test /bin/bash   //进入容器
+
+
+
+   docker run  --name centos1_py2  --privileged=true  --network host  -it 08d05d1d5859  /usr/sbin/init

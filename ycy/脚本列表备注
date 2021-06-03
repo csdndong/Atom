@@ -176,6 +176,7 @@
 #服务费收取 - 固定服务费 配置生效后，每月10号3点收取服务费
 0 3 10 * * cd /www/allianceson/ && php think organization_service_pay fixed_cost >> /var/log/crontab_log/organization_service_pay_fixed_cost_$(date "+\%Y\%m\%d").log
 
+s
 #服务费收取 - 配置生效脚本，开启或修改配置后，配置次月生效 每月最后一天 23:55:00 执行
 55 23 28 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_28$(date "+\%Y\%m\%d").log
 55 23 29 * * cd /www/allianceson/ && php think organization_service_pay setting >> /var/log/crontab_log/organization_service_pay_setting_29$(date "+\%Y\%m\%d").log

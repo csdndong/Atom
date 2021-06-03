@@ -1,0 +1,18 @@
+
+厂商管理相关接口
+1 添加厂商  http://172.17.159.126:8003/html/web/controller/share/share.html#6076e6388d81a400b0831248
+2 获取厂商信息  http://172.17.159.126:8003/html/web/controller/share/share.html#6076e68a8d81a400b0831249
+3 获取厂商列表 http://172.17.159.126:8003/html/web/controller/share/share.html#6076e6fd8d81a400b083124a
+4 更新厂商信息  http://172.17.159.126:8003/html/web/controller/share/share.html#6076e5f48d81a400b0831247
+5 获取厂商列表（ID + name）  http://172.17.159.126:8003/html/web/controller/share/share.html#60af59208d81a400b08314a5
+型号相关()
+1 添加型号  http://172.17.159.126:8003/html/web/controller/share/share.html#60b5a99d8d81a400b08314bb
+2 删除型号  http://172.17.159.126:8003/html/web/controller/share/share.html#60b636558d81a400b08314c8
+3 获取型号列表  http://172.17.159.126:8003/html/web/controller/share/share.html#60b5ed3f8d81a400b08314c4
+政策相关
+新增政策添加 和编辑需要和 产品类型绑定
+ 1 新增政策 http://172.17.159.126:8003/html/web/controller/share/share.html#60191e0ae4801a00e900c218
+ 2 编辑政策  http://172.17.159.126:8003/html/web/controller/share/share.html#601a1f8ae4801a00e900c224
+
+ 添加型号和政策相关 产品类型为动态获取
+ 1 获取产品类型  http://172.17.159.126:8003/html/web/controller/share/share.html#60b747378d81a400b0831577
