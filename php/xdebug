@@ -26,10 +26,10 @@
   xdebug.profiler_enable=on
   xdebug.profiler_output_dir="/tmp/xdebug.trace"
 
-  xdebug.client_host=192.168.8.77
+  xdebug.client_host=127.0.0.1
   xdebug.client_port=9100
   xdebug.client_handler=dbgp
-  xdebug.client_mode=debug
+  xdebug.client_mode=req
 
 
 1 本地phpstudy 配置
@@ -41,21 +41,16 @@
   xdebug.idekey="PHPSTORM"
   ;是否收集变量
   xdebug.collect_vars=on
-
   ;是否开启异常跟踪
   xdebug.show_exception_trace=0
   ;显示局部变量
   xdebug.show_local_vars=on
   ;显示默认的错误信息
   xdebug.default_enable=on
-
-  zend_extension=E:/Ydd/project/phpstudy_pro/Extensions/php/php7.2.9nts/ext/php_xdebug.dll
   xdebug.collect_params=1
   xdebug.collect_return=1
   xdebug.auto_trace=1
-  xdebug.trace_output_dir=E:/Ydd/project/phpstudy_pro/Extensions/php_log/php7.2.9nts.xdebug.trace
   xdebug.profiler_enable=on
-  xdebug.profiler_output_dir=E:/Ydd/project/phpstudy_pro/Extensions/php_log/php7.2.9nts.xdebug.profiler
   xdebug.remote_enable=1
   xdebug.remote_host=127.0.0.1
   xdebug.remote_port=9100
