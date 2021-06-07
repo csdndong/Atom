@@ -55,3 +55,6 @@
   xdebug.remote_host=127.0.0.1
   xdebug.remote_port=9100
   xdebug.remote_handler=dbgp
+UPDATE `repair_rtzs_terminal`  SET `sn` = '000006026222383050' , `merchant_id` = 30 , `merchant_name` = '华智融' , `terminal_model_number` = 'NEW6220' , `terminal_type` = '电签POS' , `terminal_source` = '' , `is_deal` = 0 , `brand_id` = 3 , `brand_name` = '市场政策A' , `number` = 'ZDZC0003'  WHERE  `id` = 563
+
+  UPDATE `repair_rtzs_terminal`  SET `sn` = '000006026222383173' , `merchant_id` = 30 , `merchant_name` = '华智融' , `terminal_model_number` = 'NEW6220' , `terminal_type` = '电签POS' , `terminal_source` = '' , `is_deal` = 0 , `brand_id` = 3 , `brand_name` = '市场政策A' , `number` = 'ZDZC0003'  WHERE  `id` = 686
