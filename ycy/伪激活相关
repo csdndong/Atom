@@ -1,0 +1,7 @@
+接收商户的推送数据（Merchant）----------->验证商户相关数据  存入redis 队列(GetMerchantPushService)
+-->消耗推送队列（MerchantPush）--->相关消耗（MerchantPushService）（判断是否创建商户/// 创建商户信息）
+
+如果是创建商户信息---->(创建商户激励+增加风控缓存+减少库存)----->增加风控缓存在方法（_addRiskControlTransactionCache）
+
+
+---->消耗风控缓存校验商户信息是否配置风控缓存（RiskControlTransaction[update]）-->增加正式的风控记录信息（）
