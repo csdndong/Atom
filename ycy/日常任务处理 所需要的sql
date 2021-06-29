@@ -14,8 +14,7 @@
 
    最终 使用的sql  结果为
    SELECT
-
-          t.sn,t.active_time,sum(tr.money) as money,m.name,m.tel,m.id
+     t.sn,t.active_time,sum(tr.money) as money,m.name,m.tel,m.id
           FROM
            `merchant` AS m
            LEFT JOIN terminal AS t ON m.terminal_id = t.id
