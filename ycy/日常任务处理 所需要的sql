@@ -1285,3 +1285,67 @@
     	DATE_FORMAT( br.end_time, '%Y-%m-%d' ) <= '2021-06-28'
     	)
     	ORDER BY br.end_time desc
+
+
+需求  修改费率相关
+      相关sql SELECT
+            	sn,
+            	brand_id
+            FROM
+            	terminal
+            WHERE
+            	user_id in(
+            	14000,14440,14772,14819,14825,15003,15011,15019,15032,15214,16123,16642,16799,17021,17024,17025,17028,17032,17194,17345,17651,17899
+            	)
+            	AND is_active = 1
+            	AND active_time <= '2021-04-30 23:59:59'
+            	and  is_deleted=0
+
+
+需求  导表  sn 代理商相关信息 相关sql
+          SELECT
+          t.sn,
+          t.active_time AS '激活时间',
+          u.agent_num AS '归属代理编号',
+          u.real_name AS '归属代理名称',
+          u.phone AS '归属代理账号',
+          up.agent_num AS '一级代理编号',
+          up.real_name AS '一级代理名称',
+          up.phone AS '一级代理账号'
+          FROM
+          terminal t
+          LEFT JOIN USER u ON t.user_id = u.id
+          LEFT JOIN USER up ON u.first_level_user_id = up.id
+          WHERE
+          t.user_id IN (
+          15557,15903,16415,16543,16827,16938,17062,17274,18617
+          )
+          AND t.is_deleted = 0
+          AND t.is_active = 1
+          and t.active_time <= '2021-04-30 23:59:59'
+
+需求  贾慧蓉 留取的sql  改下 user——id 相关
+          SELECT
+              t.sn,
+              t.bind_time as '绑定时间',
+              t.active_time as '激活时间',
+              b.name as '政策名称',
+              b.number as '政策编号',
+              b.id as '政策id',
+              case when t.is_bind = 1 then '已绑定' else '未绑定' end as '是否绑定',
+              case when t.is_active = 1 then '已激活' else '未激活' end as  '是否激活',
+              m.name as '商户名称',
+              m.merchant_number as '商户编号',
+              u.agent_num as '归属代理编号',
+              u.real_name as '归属代理名称',
+              u.phone as '归属代理账号',
+              up.agent_num as '一级代理编号',
+              up.real_name as '一级代理名称',
+              up.phone as '一级代理账号'
+          from
+              terminal t
+              LEFT JOIN user u on t.user_id = u.id
+              LEFT JOIN user up on u.first_level_user_id = up.id
+              LEFT JOIN merchant m on t.id = m.terminal_id
+              LEFT JOIN brand b on b.id = t.brand_id
+          where t.user_id in (7909,9847,11533,12215,12734,13078,14939,15622,15894,15991,16501,16622,17821,17852,17892,18179,18181) and t.is_deleted = 0 and t.is_active = 0
