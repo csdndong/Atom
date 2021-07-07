@@ -1288,7 +1288,8 @@
 
 
 需求  修改费率相关
-      相关sql SELECT
+      相关sql
+      SELECT
             	sn,
             	brand_id
             FROM
@@ -1349,3 +1350,175 @@
               LEFT JOIN merchant m on t.id = m.terminal_id
               LEFT JOIN brand b on b.id = t.brand_id
           where t.user_id in (7909,9847,11533,12215,12734,13078,14939,15622,15894,15991,16501,16622,17821,17852,17892,18179,18181) and t.is_deleted = 0 and t.is_active = 0
+
+
+
+代理商提现配置
+	select
+		u.real_name as '代理商名称',
+		u.agent_num as '代理商编号',
+		u.phone as '代理商手机号',
+		b.name as '钱包类型',
+		f.collection_tax_point / 10000 as '税点',
+		f.withdrawal_service_fee / 100 as '服务费'
+	FROM
+		user_withdrawal_fee f
+		LEFT JOIN `user` u on u.id = f.user_id
+		LEFT JOIN balance_type b on f.balance_type = b.id
+	WHERE
+		f.`level` = 1 and f.organization_id = 1;
+
+当前库内已入库未划拨的机具
+	select
+		t.sn,t.brand_id,b.name,t.organization_id
+	from terminal t
+		LEFT JOIN brand b on t.brand_id = b.id
+	where t.user_id = 0 and t.brand_id <> 0 and t.is_bind = 0 and t.is_deleted = 0 and t.is_active = 0 and t.is_frozen = 0
+	ORDER BY t.organization_id desc;
+
+导出指定用户指定条件终端信息
+	SELECT
+		t.sn,
+		t.bind_time as '绑定时间',
+		t.active_time as '激活时间',
+		b.name as '政策名称',
+		b.number as '政策编号',
+		b.id as '政策id',
+		case when t.is_bind = 1 then '已绑定' else '未绑定' end as '是否绑定',
+		case when t.is_active = 1 then '已激活' else '未激活' end as  '是否激活',
+		m.name as '商户名称',
+		m.merchant_number as '商户编号',
+		u.agent_num as '归属代理编号',
+		u.real_name as '归属代理名称',
+		u.phone as '归属代理账号',
+		up.agent_num as '一级代理编号',
+		up.real_name as '一级代理名称',
+		up.phone as '一级代理账号'
+	from
+		terminal t
+		LEFT JOIN user u on t.user_id = u.id
+		LEFT JOIN user up on u.first_level_user_id = up.id
+		LEFT JOIN merchant m on t.id = m.terminal_id
+		LEFT JOIN brand b on b.id = t.brand_id
+	where t.user_id in (7909,9847,11533,12215,12734,13078,14939,15622,15894,15991,16501,16622,17821,17852,17892,18179,18181) and t.is_deleted = 0 and t.is_active = 0;
+
+一级代理某月钱包入账明细
+	SELECT
+	 u.agent_id as '代理id',
+	 u.organization_id as '机构',
+	 u.phone AS '联系电话',
+	 u.agent_num AS '代理编号',
+	 u.real_name AS '代理名称',
+	 `level` AS '代理等级',
+	 sum(ub.money) / 100 AS '变动金额',
+	 DATE_FORMAT(ub.create_time, "%Y-%m-%d") as date,
+	 ub.type
+	FROM
+	 user_balance_log_202105 ub
+	 LEFT JOIN `user` u ON ub.user_id = u.id
+	WHERE
+	 u.`level` = 1
+	and ub.status = 1
+	and ub.organization_id = 1
+	and ub.type not in (1, 16, 17)
+	and ub.create_time <= '2021-05-27 23:59:59'
+	GROUP BY date,u.phone;
+
+ 用户所有活动奖励返现金额
+    -- 一条链的激活返现金额
+    select
+        u.real_name, u.agent_num,
+        sum(t.profit_money) as sum_money
+    FROM
+        `user` u
+        LEFT JOIN terminal_active_log_profit t on u.id = t.user_id
+    WHERE
+        u.id in (147,910,10644,11542,11547,11680,12358,12370,12519,12884,12890,12962,13205,13224,13238,13243,13260,13328,13530,13731,14072,14573,14587,14713,15089,15219,15339,15361,15486,15487,15544,15565,15648,15910,16027,16099,16269,16299,16398,16423,16614,16652,16756,17058,17283,17300,17553)
+        GROUP BY u.id
+        ORDER BY u.id asc
+
+    -- 一条链的服务费返现金额
+    -- select
+    -- 	u.real_name, u.agent_num,
+    -- 	sum(t.profit_money) as sum_money
+    -- FROM
+    -- 	`user` u
+    -- 	LEFT JOIN terminal_cash_back_award_profit t on u.id = t.user_id
+    -- WHERE
+    -- 	u.id in (147,910,10644,11542,11547,11680,12358,12370,12519,12884,12890,12962,13205,13224,13238,13243,13260,13328,13530,13731,14072,14573,14587,14713,15089,15219,15339,15361,15486,15487,15544,15565,15648,15910,16027,16099,16269,16299,16398,16423,16614,16652,16756,17058,17283,17300,17553)
+    -- 	GROUP BY u.id
+    -- 	ORDER BY u.id asc
+
+    -- 一条链的阶梯返现金额
+    -- select
+    -- 	u.nickname, u.agent_num,
+    -- 	sum(t.profit_money) as sum_money
+    -- FROM
+    -- 	`user` u
+    -- -- 	LEFT JOIN transaction_ladder_award_log l on l.user_id = u.id and l.ladder_type = 1
+    -- 	LEFT JOIN transaction_ladder_award_profit t on t.user_id = u.id and t.transaction_ladder_award_log_id in ()
+    -- WHERE
+    -- 	u.id in (147,910,10644,11542,11547,11680,12358,12370,12519,12884,12890,12962,13205,13224,13238,13243,13260,13328,13530,13731,14072,14573,14587,14713,15089,15219,15339,15361,15486,15487,15544,15565,15648,15910,16027,16099,16269,16299,16398,16423,16614,16652,16756,17058,17283,17300,17553)
+    --
+    -- 	GROUP BY u.id
+    -- 	ORDER BY u.id asc
+
+    -- 交易满返金额
+    -- select
+    -- 	u.real_name, u.agent_num,
+    -- 	sum(t.profit_money) as sum_money
+    -- FROM
+    -- 	`user` u
+    -- 	LEFT JOIN transaction_standard_award_profit t on t.user_id = u.id
+    -- WHERE
+    -- 	u.id in (147,910,10644,11542,11547,11680,12358,12370,12519,12884,12890,12962,13205,13224,13238,13243,13260,13328,13530,13731,14072,14573,14587,14713,15089,15219,15339,15361,15486,15487,15544,15565,15648,15910,16027,16099,16269,16299,16398,16423,16614,16652,16756,17058,17283,17300,17553)
+    -- 	GROUP BY u.id
+    -- 	ORDER BY u.id asc
+
+ 指定政策正在使用的一级代理信息
+    -- 查询政策编号对应的政策id
+    -- SELECT id FROM brand WHERE number in ('ZDZC0008')
+
+  查询使用指定政策的一级代理信息
+    SELECT
+            u.agent_num,
+            u.real_name,
+            b.number,
+            b.`name`
+    FROM
+            `user_brand` ub
+            LEFT JOIN `user` u ON u.id = ub.user_id
+            LEFT JOIN brand b ON b.id = ub.brand_id
+    WHERE
+            u.`level` = 1
+            AND ub.brand_id IN (8);
+
+中台重复出款对应的当前库内的数据
+	select
+		w.client_num as '小融电签订单号',w.repay_num as '中台订单号',w.true_money/100 as '提现金额',
+		u.real_name as '归属代理名称',u.agent_num as '归属代理编号',u.phone as '归属代理账号',
+		up.real_name as '一级代理名称',up.agent_num as '一级代理编号',up.phone as '一级代理账号',
+		b.branch_bank as '开户支行',b.bank_code as '银行卡号',b.phone as '银行预留手机号'
+	from
+		user_withdraw w
+		LEFT JOIN user u on w.user_id=u.id
+		LEFT JOIN user up on u.first_level_user_id=up.id
+		LEFT JOIN user_bank b on b.id=w.bank_id
+		WHERE
+		w.repay_num in (202105251620472545166,202105251620542693135,202105251621074298065,202105251621131389932,202105251621165726057,202105251621213042985,202105251621287743997,202105251621338233761,202105251621397887900,202105251621423992848,202105251621514468955,202105251622031939082,202105251622091419376,202105251622144164735,202105251622195566082,202105251622575489326,202105251623089015179,202105251623103067247,202105251623133342691,202105251623161597089);
+
+终端信息对应的每月交易额
+    select
+    -- 	u.real_name as '归属代理商名称',u.agent_num as '归属代理上编号',u.phone as '归属代理商手机号',
+    -- 	up.real_name as '一级代理商名称',up.agent_num as '一级代理商编号',up.phone as '一级代理商手机号',
+    -- 	b.name as '政策类型',
+        t.sn as  'SN',t.active_time AS '激活时间',IFNULL(sum(ta.transaction_money),0) as '交易金额'
+    FROM
+        terminal t
+    -- 	LEFT JOIN `user` u on t.user_id=u.id
+    -- 	LEFT JOIN `user` up on u.first_level_user_id = up.id
+    -- 	LEFT JOIN brand b on t.brand_id = b.id
+        LEFT JOIN transaction_202105 ta on ta.terminal_id = t.id
+    WHERE t.id in (109688,109689,109941,109942,109944,109949,109950,111194,111195,111197,111198,111199,111200,111201,111202,111203,111204,111206,111207,111209,111278,111279,111281,111332,111335,111337,111338,111339,111579,111580,111581,111582,111583,111584,111585,111586,111587,111588,111589,111590,111591,111592,111593,111594,111595,111596,111598,111599,111600,111602,111607,111641,111679,111681,112060,112083,112084,112085,112087,112135,112136,112137,112138,112139,112140,112141,112142,112143,112144,112145,112147,112149,112150,112151,112152,112153,112154,112162,112164,112165,112166,112167,112168,112169,112170,112171,112172,112173,112174,112175,112178,112179,112369,112370,112371,112372,112373,112374,112375,112376,112377,112378,112379,112380,112381,112382,112383,112384,112385,112386,112387,112474,112638,112640,112641,112643,112933,112938,112956,113001,113016,113017,113020,113027,113028,113034,113038,113042,113044,113046,113049,113050,113051,113055,113058,113060,113219,113222,113224,113226,113227,113228,113279,113286,113309,113310,113311,113312,113313,113315,113317,113320,113322,113408,113413,113600,113602,113614,113620,113624,113683,113684,113685,113686,113687,113688,113690,113691,113694,113704,113706,113710,113711,113712,113713,113714,113715,113717,113718,113720,113722,113723,113724,113726,113763,113764,113788,113789,113790,113791,113793,113854,113858,113884,113985,114006,114030,114032,114122,114123,114127,114129,114130,114134,114172,114177,114178,114180,114181,114184,114189,114190,114218,114366,114372,114418,114419,114436,115225,115470,115487,115489,115490,115491,115492,115493,115551,115552,115553,115554,115555,115556,115557,115558,115559,115560,115561,115562,115563,117613,117614,291955,326495,328530,329071,329581,330251,331879,343722,345628,346978,348028,350626,351377,358169,359266,359594,359900,359922,364995,367721,370687)
+    GROUP BY t.id
+    ORDER BY t.sn asc
