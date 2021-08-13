@@ -15,9 +15,3 @@ admin
 子后台：http://rtzs.sub.xrmocksite.98shuju.com/login
 admin
 lm123456
-
-子后台的端口 配置
-api 10010
-service 8080
-sub 10011
-wap 10012
