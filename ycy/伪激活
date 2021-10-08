@@ -1,0 +1,110 @@
+# brand_risk_control_trigger 风控触发记录表更新唯一键: 
+alter table brand_risk_control_trigger drop index uk_terminal;
+alter table brand_risk_control_trigger add unique uk_terminal_type(`terminal_id`,`type`) using btree;
+alter table brand_risk_control_trigger add unique uk_order(`order_num`) using btree;
+
+# brand_risk_control_trigger 风控触发记录表增加字段
+alter table brand_risk_control_trigger add down_money int(11) NOT NULL DEFAULT '0' COMMENT '应扣金额' AFTER `status`;
+alter table brand_risk_control_trigger add `subsidy_money` int(11) NOT NULL DEFAULT '0' COMMENT '上级补贴金额' AFTER `down_money`;
+alter table brand_risk_control_trigger add `start_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '开始类型  1 = 激活时间开始 2 = 首次出库时间' AFTER `brand_risk_control_transaction_id`;
+alter table brand_risk_control_trigger add `start_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '开始时间' AFTER `start_type`;
+
+# brand_risk_control 风控规则配置表增加字段
+alter table brand_risk_control add `number` char(12) NOT NULL DEFAULT '' COMMENT '编号' AFTER `brand_id`;
+alter table brand_risk_control add `is_delete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 = 未删 1= 已删' AFTER `type`;
+
+#basic_data_maintenance表新增数据
+INSERT INTO `basic_data_maintenance`( `business`, `describe`, `value`, `remarks`, `admin_id`, `operation_time`) VALUES ( '权限类', '伪激活/未激活，下级代理钱包余额不足时，N月后向上补扣进行回款；且下级分润/返现入上级对应钱包', '12', '例如：0-表示不限制；1-表示1个月，2-表示2个月等；', 0, '0000-00-00 00:00:00');
+
+#menu表新增数据
+UPDATE `menu` SET `title` = '考核规则触发记录' WHERE `id` = 59;
+INSERT INTO `menu`( `parent_id`, `title`, `icon`, `path`, `installment_path`, `is_deleted`, `sort`, `status`) VALUES ( 64, '补垫管理', '', 'riskControlAdvance', '', 0, 2, 1);
+
+#agent_menu表新增数据
+INSERT INTO `agent_menu`(`parent_id`, `title`, `path`, `sort`) VALUES (7, '考核规则触发记录', 'riskControlLog', 5)
+INSERT INTO `agent_menu`(`parent_id`, `title`, `path`, `sort`) VALUES (7, '补垫管理', 'riskControlAdvance', 6)
+
+#user_abnormal_log表新增字段
+alter table user_abnormal_log add risk_control tinyint(1) NOT NULL DEFAULT '0' COMMENT '风控类型：1 = 伪激活，3 = 未激活' AFTER `organization_id`;
+alter table user_abnormal_log add current_wallet int(11) NOT NULL DEFAULT '0' COMMENT '应还金额' AFTER `money`;
+alter table user_abnormal_log add is_advance_payment tinyint(1) NOT NULL DEFAULT '0' COMMENT '当前挂帐是否有补垫：1 = 有，0 = 无' AFTER `current_wallet`;
+
+#user_balance表新增字段
+alter table user_balance add not_active_debt_wallet int(11) NOT NULL DEFAULT '0' COMMENT '风控未激活剩余扣款钱包' AFTER `month_wallet`;
+alter table user_balance add pseudo_active_debt_wallet int(11) NOT NULL DEFAULT '0' COMMENT '风控伪激活剩余扣款钱包' AFTER `not_active_debt_wallet`;
+
+#风控-补垫记录主表
+CREATE TABLE `brand_risk_control_advance_payment_main` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `organization_id` int(11) NOT NULL DEFAULT '0' COMMENT '机构ID',
+  `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '补垫人的用户ID',
+  `sponsor_user_id` int(11) NOT NULL DEFAULT '0' COMMENT '被补垫人的用户ID',
+  `advance_payment_total_money` int(11) NOT NULL DEFAULT '0' COMMENT '补垫总金额',
+  `not_active_advance_payment_money` int(11) NOT NULL DEFAULT '0' COMMENT '未激活补垫金额',
+  `fake_active_advance_payment_money` int(11) NOT NULL DEFAULT '0' COMMENT '伪激活补垫金额',
+  `current_surplus_money` int(11) NOT NULL DEFAULT '0' COMMENT '当前剩余待还金额',
+  `not_active_owe_money` int(11) NOT NULL DEFAULT '0' COMMENT '未激活剩余欠款',
+  `fake_active_owe_money` int(11) NOT NULL DEFAULT '0' COMMENT '伪激活剩余欠款',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_user_sponsor` (`user_id`,`sponsor_user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='风控-补垫记录主表';
+
+#风控-补垫子表记录表
+CREATE TABLE `brand_risk_control_advance_payment_side` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `risk_control` tinyint(1) NOT NULL DEFAULT '0' COMMENT '规则类型 :1 = 伪激活，3 = 未激活',
+  `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '补垫人的用户ID',
+  `sponsor_user_id` int(11) NOT NULL DEFAULT '0' COMMENT '被补垫人的用户ID',
+  `terminal_id` int(11) NOT NULL DEFAULT '0' COMMENT '终端ID',
+  `brand_id` int(11) NOT NULL DEFAULT '0' COMMENT '终端政策ID',
+  `advance_payment_main_id` int(11) NOT NULL DEFAULT '0' COMMENT '补垫记录主表ID',
+  `balance_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '出账类型：0 = 平台补垫，1 = 分润钱包，2 = 服务费钱包，3 = 上级补垫',
+  `advance_payment_money` int(11) NOT NULL DEFAULT '0' COMMENT '补垫金额',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sponsor_user` (`sponsor_user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='风控-补垫记录子表';
+
+#风控-补垫还款记录表
+CREATE TABLE `brand_risk_control_advance_payment_repayment_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `risk_control` tinyint(1) NOT NULL DEFAULT '0' COMMENT '规则类型 :1 = 伪激活，3 = 未激活',
+  `sponsor_user_id` int(11) NOT NULL DEFAULT '0' COMMENT '被补垫人的用户ID',
+  `order_num` char(64) NOT NULL DEFAULT '' COMMENT '还款订单号',
+  `balance_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '钱包类型：1 = 分润钱包，2 = 服务费钱包',
+  `repayment_money` int(11) NOT NULL DEFAULT '0' COMMENT '还款金额',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sponsor_user` (`sponsor_user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='风控-补垫还款记录表';
+
+#风控-核销记录表
+CREATE TABLE `brand_risk_control_remove_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sponsor_user_id` int(11) NOT NULL DEFAULT '0' COMMENT '被核销人id',
+  `risk_control` tinyint(1) NOT NULL DEFAULT '0' COMMENT '规则类型 :1 = 伪激活，3 = 未激活',
+  `order_num` char(64) NOT NULL DEFAULT '' COMMENT '核销订单号',
+  `out_money` int(11) NOT NULL DEFAULT '0' COMMENT '核销金额',
+  `remain_money` int(11) NOT NULL COMMENT '剩余欠款金额',
+  `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作区域 1 = app  2 = sub 3 = agent',
+  `admin_id` int(11) NOT NULL DEFAULT '0' COMMENT '操作人',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sponsor_user` (`sponsor_user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='风控-核销记录表';
+
+#风控-扣款记录
+CREATE TABLE `brand_risk_control_withhold_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `organization_id` int(11) NOT NULL DEFAULT '0' COMMENT '机构ID',
+  `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `terminal_id` int(11) NOT NULL DEFAULT '0' COMMENT '终端ID',
+  `risk_control` tinyint(1) NOT NULL DEFAULT '0' COMMENT '规则类型 :1 = 伪激活，3 = 未激活',
+  `balance_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 = 分润钱包 2= 服务费钱包',
+  `money` int(11) NOT NULL DEFAULT '0' COMMENT '扣款金额',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_terminal` (`terminal_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='风控-扣款记录';
